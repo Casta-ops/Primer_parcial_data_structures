@@ -21,11 +21,6 @@ si deseamos utilizar distintos espacios en la memoria, en ese caso lo mas factib
 utilizar listas. Las listas nos permiten utilizar nodos a diferentes lugares de la memoria sin perder
 o desconocer la ubicación de cada elemento dentro de la estructura.
 
-1. Para cada uno de los vectores especifique cuál es su capacidad final y el desperdicio en
-el que incurre.
-2. Cuál de los vectores resultó ser más eficiente a la hora de ejecutar el programa?
-Justifique clara y concisamente su respuesta.
-
 2. Si comparamos el vector con una lista enlazada como la implementada en el curso cree
 usted que la lista pueda ser más eficiente?. Justifique su respuesta.
 
@@ -34,7 +29,8 @@ y condiciones que tengamos a la hora de programar. Mientras que los Vectores nos
 de la estructura, las Listas nos permiten controlar de manera mas factible los elementos en relación 
 a su remoción e introducción, ya que no es necesario hacer un resize cada vez que se introducen nuevos elementos,
 solo es imperativo incrementar su tamaño. Entonces esta respuesta es un poco ambigua, pero no podemos conocer la
-verdadera eficiencia de cada estructura con respecto 
+verdadera eficiencia de cada estructura a no ser que tengamos presentes cada una de nuestras necesidades a la hora
+de programar, y las del usuario claramente.
 
 # Pregunta 2
 
@@ -59,6 +55,43 @@ momento. El vector y se construye (línea 3) con 10 elementos de capacidad inici
 política de crecimiento de 1.8. Por último el vector z es inicializado (línea 4) con una capacidad
 inicial de 100 elementos y una política de crecimiento de 2.0.
 
+1. Para cada uno de los vectores especifique cuál es su capacidad final y el desperdicio en
+el que incurre.
+
+Vector(x) -> 2.0(1 -> 10, 2 -> 20, 3 -> 40, 4 -> 80, 5 -> 160, 6 -> 320, 7 -> 640, 8 -> 1280, 9 -> 2560, 10 -> 5120, 11 -> 10240)
+Capacidad final (x) -> 10240
+Vector(y) -> 1.8(1 -> 18, 2 -> 32, 3 -> 58, 4 -> 104, 5 -> 188, 6 -> 340, 7 -> 612, 8 -> 1101, 9 -> 1983, 10 -> 3570, 11 -> 6426, 12 -> 11568)
+Capacidad final (y) -> 11568
+Vector(z) -> 2.0(1 -> 200, 2 -> 400, 3 -> 800, 4 -> 1600, 5 -> 3200, 6 -> 6400, 7 -> 12800)
+Capacidad final (z) -> 12800
+
+RE // Cuando hablamos de desperdicio con respecto a la memoria cuando recurrimos a la politica de crecimiento, 
+podemos tener en cuenta dos grandes aspectos, el primero es la cantidad de procesos que se ejecutan a partir
+de resize en relación a cada uno de los vectores, y el segundo aspecto es la cantidad de posiciones que desperdiciamos
+a partir de ese crecimiento del arreglo. El Vector(y) es la estructura que mas recurre a esta politica, pues ejecuta 12
+procesos que resultan mas costosos con respecto a los otros dos vectores, adicional a los casi 2000 posiciones que no se utilizan
+conforme al ciclo de inserción que se indica en el main, sin embargo, puede resultar beneficioso para el programa a largo plazo,
+pues duplicar el size llega a ser más costoso con una inserción de muchos mas elementos, la politica de crecimiento de (1.8) del
+Vector (y) limita ese rango de crecimiento a una cantidad mas pequeña y considerable dentro del programa. Con respecto al Vector (x)
+Podemos tener en cuenta la consideración de que ejecuta casi que la misma cantidad de resize que el Vector anterior, sin embargo
+desperdicia muchos menos elementos conforme al crecimiento de su tamaño. Aun asi el Vector (z) es la estructura que más recurre al
+desperdicio de memoria, ocupando posiciones que aun no han sido abarcadas por el ciclo de inserción, con alrededor de 3000 posiciones
+sin ocupar, pero este Vector tiene la facilidad de ocupar mucho menos la politica de crecimiento con pocos resize ejecutados.
+
+2. Cuál de los vectores resultó ser más eficiente a la hora de ejecutar el programa?
+Justifique clara y concisamente su respuesta.
+
+RE // Teniendo en cuenta que el resize permite crear un nuevo arreglo, que copia los elementos del arreglo original 
+(liberandose a memoria) con su nuevo tamaño gracias a la politica de crecimiento, podemos visualizar que este proceso
+resulta costoso cuando se ejecuta una gran cantidad de veces, por esa razón el Vector(z) es el más eficiente, pues con solo
+7 resize permite abarcar el ciclo de inserción, sin embargo... este Vector esta desperdiciando las casi 3000 posiciones en memoria
+que no esta ocupando, lo cual a largo plazo puede resultar poco optimo por su politica de crecimiento de (2.0), 
+por esa razón mi respuesta seria la siguiente.
+  a. Vector que menos proceso ejecuta (eficiencia): Vector (z)
+  b. Vector que menos posiciones desperdicia: Vector (x)
+  c. Vector que a largo plazo resulta optimo: Vector (y)
+
+
 # Pregunta 3;
 
 Se cuenta con la siguiente representación de una red de transporte. Los círculos representan
@@ -81,141 +114,123 @@ cualquiera de las estructuras de datos discutidas en clase.
 conectadas con esta.
 
 #include <iostream>
-#include <vector>
-#include <list>
-#include <algorithm>
 
 class AdjacencyList {
 private:
-    struct Node {
+    class Node {
+    private:
         int city;
         Node* next;
-        Node(int c) : city(c), next(nullptr) {}
+    public:
+        Node(unsigned int c) : city(c), next(nullptr) {}
+        int getCity() const {
+            return city;
+        }
+        Node* getNext() const {
+            return next;
+        }
+        void setNext(Node* nextNode) {
+            next = nextNode;
+        }
     };
-
-    std::vector<Node*> adjList;
-
+    Node** adjList;
+    int numCities;
 public:
     // Constructor para inicializar la lista de adyacencia con un número dado de ciudades
-    AdjacencyList(int numCities) {
-        adjList.resize(numCities, nullptr);
+    AdjacencyList(int numCities) : numCities(numCities) {
+        adjList = new Node*[numCities];
+        for (int i = 0; i < numCities; ++i) {
+            adjList[i] = nullptr;
+        }
     }
-
+    // Destructor para liberar la memoria
+    ~AdjacencyList() {
+        for (int i = 0; i < numCities; ++i) {
+            Node* current = adjList[i];
+            while (current) {
+                Node* temp = current;
+                current = current->getNext();
+                delete temp;
+            }
+        }
+        delete[] adjList;
+    }
     // Método para adicionar una conexión entre dos ciudades
     void addEdge(int city1, int city2) {
         Node* newNode1 = new Node(city2);
-        newNode1->next = adjList[city1];
+        newNode1->setNext(adjList[city1]);
         adjList[city1] = newNode1;
-
         Node* newNode2 = new Node(city1);
-        newNode2->next = adjList[city2];
+        newNode2->setNext(adjList[city2]);
         adjList[city2] = newNode2;
     }
-
     // Método para remover una conexión entre dos ciudades
     void removeEdge(int city1, int city2) {
         adjList[city1] = removeNode(adjList[city1], city2);
         adjList[city2] = removeNode(adjList[city2], city1);
     }
-
     // Método para obtener las ciudades conectadas a una ciudad dada
-    std::list<int> getConnectedCities(int city) {
-        std::list<int> connectedCities;
+    void getConnectedCities(int city) const {
         Node* current = adjList[city];
         while (current) {
-            connectedCities.push_back(current->city);
-            current = current->next;
+            std::cout << current->getCity() << " ";
+            current = current->getNext();
         }
-        return connectedCities;
+        std::cout << std::endl;
     }
-
-    // Método para adicionar una ciudad (incrementa el tamaño del vector)
+    // Método para adicionar una ciudad (incrementa el tamaño del array)
     void addCity() {
-        adjList.push_back(nullptr);
+        Node** newAdjList = new Node*[numCities + 1];
+        for (int i = 0; i < numCities; ++i) {
+            newAdjList[i] = adjList[i];
+        }
+        newAdjList[numCities] = nullptr;
+        delete[] adjList;
+        adjList = newAdjList;
+        numCities++;
     }
-
     // Método para remover una ciudad (elimina todas las conexiones con esa ciudad)
     void removeCity(int city) {
-        for (auto& head : adjList) {
-            head = removeNode(head, city);
+        for (int i = 0; i < numCities; ++i) {
+            adjList[i] = removeNode(adjList[i], city);
         }
-        adjList.erase(adjList.begin() + city);
-        // Ajustar las conexiones restantes
-        for (auto& head : adjList) {
-            Node* current = head;
-            while (current) {
-                if (current->city > city) {
-                    current->city--;
-                }
-                current = current->next;
-            }
+        for (int i = city; i < numCities - 1; ++i) {
+            adjList[i] = adjList[i + 1];
         }
+        adjList[numCities - 1] = nullptr;
+        numCities--;
     }
-
     // Método para imprimir la lista de adyacencia (para depuración)
-    void printAdjList() {
-        for (int i = 0; i < adjList.size(); ++i) {
+    void printAdjList() const {
+        for (int i = 0; i < numCities; ++i) {
             std::cout << "Ciudad " << i << ": ";
             Node* current = adjList[i];
             while (current) {
-                std::cout << current->city << " ";
-                current = current->next;
+                std::cout << current->getCity() << " ";
+                current = current->getNext();
             }
             std::cout << std::endl;
         }
     }
-
 private:
     // Método auxiliar para remover un nodo de la lista
     Node* removeNode(Node* head, int city) {
         if (!head) return nullptr;
-        if (head->city == city) {
+        if (head->getCity() == city) {
             Node* temp = head;
-            head = head->next;
+            head = head->getNext();
             delete temp;
             return head;
         }
         Node* current = head;
-        while (current->next && current->next->city != city) {
-            current = current->next;
+        while (current->getNext() && current->getNext()->getCity() != city) {
+            current = current->getNext();
         }
-        if (current->next) {
-            Node* temp = current->next;
-            current->next = current->next->next;
+        if (current->getNext()) {
+            Node* temp = current->getNext();
+            current->setNext(current->getNext()->getNext());
             delete temp;
         }
         return head;
     }
 };
-
-int main() {
-    AdjacencyList network(6);
-
-    network.addEdge(0, 1);
-    network.addEdge(0, 4);
-    network.addEdge(0, 5);
-    network.addEdge(1, 2);
-    network.addEdge(1, 3);
-    network.addEdge(4, 5);
-
-    network.printAdjList();
-
-    std::cout << "Ciudades conectadas con la ciudad 1: ";
-    for (int city : network.getConnectedCities(1)) {
-        std::cout << city << " ";
-    }
-    std::cout << std::endl;
-
-    network.removeEdge(0, 1);
-    network.printAdjList();
-
-    network.addCity();
-    network.addEdge(6, 2);
-    network.printAdjList();
-
-    network.removeCity(1);
-    network.printAdjList();
-
-    return 0;
-}
-
