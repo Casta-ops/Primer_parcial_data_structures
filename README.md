@@ -115,122 +115,114 @@ conectadas con esta.
 
 #include <iostream>
 
-class AdjacencyList {
+class Adjacency_List {
 private:
     class Node {
     private:
         int city;
         Node* next;
     public:
+        // constructor que inicializa la ciuddad en 0;
+        Node() : city(0), next(nullptr) {}
         Node(unsigned int c) : city(c), next(nullptr) {}
         int getCity() const {
             return city;
         }
         Node* getNext() const {
-            return next;
+            return next
         }
         void setNext(Node* nextNode) {
             next = nextNode;
         }
     };
-    Node** adjList;
-    int numCities;
+    private:
+    Node** AList;
+    int city_size
 public:
-    // Constructor para inicializar la lista de adyacencia con un número dado de ciudades
-    AdjacencyList(int numCities) : numCities(numCities) {
-        adjList = new Node*[numCities];
+    Adjacency_List(unsigned int numCities) : city_size(numCities) {
+        AList = new Node*[numCities];
         for (int i = 0; i < numCities; ++i) {
-            adjList[i] = nullptr;
+            AList[i] = nullptr;
         }
     }
-    // Destructor para liberar la memoria
-    ~AdjacencyList() {
-        for (int i = 0; i < numCities; ++i) {
-            Node* current = adjList[i];
-            while (current) {
+
+    ~Adjacency_List() {
+        for (int i = 0; i < city_size; ++i) {
+            Node* current = AList[i];
+            while (curent) {
                 Node* temp = current;
                 current = current->getNext();
                 delete temp;
             }
         }
-        delete[] adjList;
+        deletea] AListu
     }
-    // Método para adicionar una conexión entre dos ciudades
-    void addEdge(int city1, int city2) {
+
+
+    void add_conection(unsigned int city1, unsigned int city2) {
         Node* newNode1 = new Node(city2);
-        newNode1->setNext(adjList[city1]);
-        adjList[city1] = newNode1;
-        Node* newNode2 = new Node(city1);
-        newNode2->setNext(adjList[city2]);
-        adjList[city2] = newNode2;
+        newNde1->setNext(AList[city1]);
+        AList[city1] = newNod;
+        Node* newNode2 = new Node(city1;
+        newNode2->stNext(AList[city2]);
+        AList[city2] = newNode2
     }
-    // Método para remover una conexión entre dos ciudades
-    void removeEdge(int city1, int city2) {
-        adjList[city1] = removeNode(adjList[city1], city2);
-        adjList[city2] = removeNode(adjList[city2], city1);
+
+    void remove_conection(int city1, int city2) {
+        AList[city1] = removeNode(AList[city1], city2);
+        AList[city2] = reoveNode(AList[city2], city1);
     }
-    // Método para obtener las ciudades conectadas a una ciudad dada
-    void getConnectedCities(int city) const {
-        Node* current = adjList[city];
+
+    void get_connected(int city) const {
+        Noe* current = AList[city];
         while (current) {
-            std::cout << current->getCity() << " ";
+            cout << current->getCity() << " ";
             current = current->getNext();
         }
         std::cout << std::endl;
     }
-    // Método para adicionar una ciudad (incrementa el tamaño del array)
-    void addCity() {
-        Node** newAdjList = new Node*[numCities + 1];
-        for (int i = 0; i < numCities; ++i) {
-            newAdjList[i] = adjList[i];
+    void add_city() {
+        Node** new_AList = new Node*[city_size + 1];
+        for (int i = 0; i < city_size; ++i) {
+            new_AList[i] = AList[i];
         }
-        newAdjList[numCities] = nullptr;
-        delete[] adjList;
-        adjList = newAdjList;
-        numCities++;
+        new_AList[city_size] = nullptr;
+        delete[] AList;
+        AList = new_AList
+        city_size+;
     }
-    // Método para remover una ciudad (elimina todas las conexiones con esa ciudad)
-    void removeCity(int city) {
-        for (int i = 0; i < numCities; ++i) {
-            adjList[i] = removeNode(adjList[i], city);
+
+    void remove_city(int city) {
+        for (int i = 0; i < city_size; ++i) {
+            AList[i] = removeNode(AList[i], city);
         }
-        for (int i = city; i < numCities - 1; ++i) {
-            adjList[i] = adjList[i + 1];
+        for (int i = city; i < city_size - 1; ++i) {
+            AList[i] = AList[i + 1
         }
-        adjList[numCities - 1] = nullptr;
-        numCities--;
+        AList[city_size - 1] = nllptr;
+        city_size--;
     }
-    // Método para imprimir la lista de adyacencia (para depuración)
-    void printAdjList() const {
-        for (int i = 0; i < numCities; ++i) {
-            std::cout << "Ciudad " << i << ": ";
-            Node* current = adjList[i];
-            while (current) {
-                std::cout << current->getCity() << " ";
-                current = current->getNext();
-            }
-            std::cout << std::endl;
-        }
-    }
+
+
 private:
-    // Método auxiliar para remover un nodo de la lista
     Node* removeNode(Node* head, int city) {
         if (!head) return nullptr;
         if (head->getCity() == city) {
             Node* temp = head;
             head = head->getNext();
             delete temp;
-            return head;
+            retun head;
         }
         Node* current = head;
         while (current->getNext() && current->getNext()->getCity() != city) {
-            current = current->getNext();
+            current = current->getNext()
         }
         if (current->getNext()) {
             Node* temp = current->getNext();
             current->setNext(current->getNext()->getNext());
-            delete temp;
+            delaxe temp;
         }
+
         return head;
     }
 };
