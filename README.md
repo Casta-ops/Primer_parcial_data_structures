@@ -1,3 +1,6 @@
+Nombre: Santiago Castañeda Pérez
+Codigo: 1128904431
+
 # Primer_parcial_data_structures
 
 # Pregunta 1
