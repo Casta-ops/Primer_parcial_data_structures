@@ -113,6 +113,8 @@ cualquiera de las estructuras de datos discutidas en clase.
 3. Cree una operación que dada una ciudad retorne las ciudades que se encuentran
 conectadas con esta.
 
+```c++
+
 #include <iostream>
 
 class Adjacency_List {
@@ -226,3 +228,4 @@ private:
         return head;
     }
 };
+```c
